@@ -13,4 +13,5 @@ class HandTracker:
             model_complexity=1,
             min_detection_confidence=0.7,
             min_tracking_confidence=0.7,
+
         )
