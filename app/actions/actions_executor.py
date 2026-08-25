@@ -1,6 +1,13 @@
+from app.actions.input_controller import InputController
+
+
 class ActionExecutor:
 
+    def __init__(self):
+        self.controller = InputController()
+
     def execute(self, action):
+
         if action == "PAUSE":
             self.pause()
 
@@ -14,16 +21,16 @@ class ActionExecutor:
             self.next()
 
         else:
-            print("No action executed.")
+            print(f"No action mapped for: {action}")
 
     def pause(self):
-        print("PAUSE action executed")
+        self.controller.pause()
 
     def stop(self):
-        print("STOP action executed")
+        self.controller.stop()
 
     def confirm(self):
-        print("CONFIRM action executed")
+        self.controller.confirm()
 
     def next(self):
-        print("NEXT action executed")
+        self.controller.next()
