@@ -1,6 +1,22 @@
 {
-    "OPEN_PALM": "PAUSE",
-    "FIST": "STOP",
-    "THUMBS_UP": "NEXT",
-    "VICTORY": "NEXT"
+    "OPEN_PALM": {
+        "action": "PAUSE",
+        "handler": "KEYBOARD"
+    },
+    "FIST": {
+        "action": "STOP",
+        "handler": "KEYBOARD"
+    },
+    "THUMBS_UP": {
+        "action": "CONFIRM",
+        "handler": "KEYBOARD"
+    },
+    "VICTORY": {
+        "action": "NEXT",
+        "handler": "KEYBOARD"
+    },
+    "OK": {
+        "action": "CLICK",
+        "handler": "MOUSE"
+    }
 }

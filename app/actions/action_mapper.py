@@ -9,4 +9,17 @@ class ActionMapper:
             self.actions = json.load(file)
 
     def map_gesture(self, gesture):
-        return self.actions.get(gesture, "NO_ACTION")
+        config = self.actions.get(gesture)
+
+        if config is None:
+            return "NO_ACTION"
+
+        return config["action"]
+
+    def get_handler(self, gesture):
+        config = self.actions.get(gesture)
+
+        if config is None:
+            return None
+
+        return config["handler"]

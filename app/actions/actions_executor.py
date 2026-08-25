@@ -1,25 +1,26 @@
-from app.actions.input_controller import InputController
+from app.actions.action_registry import ActionRegistry
+from app.actions.handler_loader import HandlerLoader
 
 
 class ActionExecutor:
 
     def __init__(self):
 
-        self.controller = InputController()
+        self.registry = ActionRegistry()
 
-        self.actions = {
-            "PAUSE": self.controller.pause,
-            "STOP": self.controller.stop,
-            "CONFIRM": self.controller.confirm,
-            "NEXT": self.controller.next,
-        }
+        loader = HandlerLoader()
 
-    def execute(self, action):
+        handlers = loader.load_handlers()
 
-        action_function = self.actions.get(action)
+        for name, handler in handlers.items():
+            self.registry.register(name, handler)
 
-        if action_function is None:
-            print(f"No action mapped for: {action}")
+    def execute(self, action, handler_name):
+
+        handler = self.registry.get_handler(handler_name)
+
+        if handler is None:
+            print(f"No handler registered for: {handler_name}")
             return
 
-        action_function()
+        handler.execute(action)

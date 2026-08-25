@@ -1,26 +1,25 @@
 import cv2
 import time
 
-from app.input.camera import Camera
-from app.vision.hand_tracker import HandTracker
-from app.vision.gesture_recognizer import GestureRecognizer
-from app.vision.gesture_registry import GestureRegistry
-from app.vision.gesture_debouncer import GestureDebouncer
-from app.actions.action_mapper import ActionMapper
-from app.actions.actions_executor import ActionExecutor
+from app.core.bootstrap import Bootstrap
 
 
 def main():
 
-    camera = Camera()
-    tracker = HandTracker()
-    recognizer = GestureRecognizer()
-    registry = GestureRegistry()
-    action_mapper = ActionMapper()
-    executor = ActionExecutor()
-    debouncer = GestureDebouncer()
+    # Initialize GestureVisionAI
+    system = Bootstrap()
+
+    camera = system.camera
+    tracker = system.tracker
+    recognizer = system.recognizer
+    registry = system.gesture_registry
+    action_mapper = system.action_mapper
+    executor = system.action_executor
+    debouncer = system.debouncer
 
     camera.open()
+
+    system.logger.info("Camera started")
 
     while True:
 
@@ -36,34 +35,34 @@ def main():
 
             for hand in result.hand_landmarks:
 
-                # -----------------------------
                 # Recognize gesture
-                # -----------------------------
                 gesture = recognizer.recognize(hand)
 
+                # Convert internal gesture to display name
                 gesture_name = registry.get_name(gesture)
 
-                # -----------------------------
                 # Map gesture to action
-                # -----------------------------
                 action = action_mapper.map_gesture(gesture)
 
-                # -----------------------------
-                # Trigger action only once
-                # when gesture appears/changes
-                # -----------------------------
+                # Get handler
+                handler_name = action_mapper.get_handler(gesture)
+
+                # Execute only when gesture changes
                 if debouncer.should_trigger(gesture):
 
-                    print(
+                    system.logger.info(
                         f"Gesture: {gesture_name} | "
-                        f"Action: {action}"
+                        f"Action: {action} | "
+                        f"Handler: {handler_name}"
                     )
 
-                    executor.execute(action)
+                    if handler_name is not None:
+                        executor.execute(
+                            action,
+                            handler_name
+                        )
 
-                # -----------------------------
-                # Draw hand landmarks
-                # -----------------------------
+                # Draw landmarks
                 for landmark in hand:
 
                     x = int(landmark.x * w)
@@ -77,9 +76,7 @@ def main():
                         -1
                     )
 
-                # -----------------------------
                 # Display gesture and action
-                # -----------------------------
                 cv2.putText(
                     frame,
                     f"{gesture_name} -> {action}",
@@ -92,14 +89,6 @@ def main():
 
         else:
 
-            # -----------------------------
-            # No hand detected
-            # Reset gesture state so that
-            # the same gesture can trigger
-            # again when shown
-            # -----------------------------
-            debouncer.should_trigger(None)
-
             cv2.putText(
                 frame,
                 "No hand detected",
@@ -110,20 +99,18 @@ def main():
                 2
             )
 
-        # -----------------------------
-        # Display camera
-        # -----------------------------
         cv2.imshow(
             "GestureVisionAI",
             frame
         )
 
-        # Press Q to exit
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
     camera.release()
     cv2.destroyAllWindows()
+
+    system.logger.info("GestureVisionAI stopped")
 
 
 if __name__ == "__main__":
