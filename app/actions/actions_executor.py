@@ -4,33 +4,22 @@ from app.actions.input_controller import InputController
 class ActionExecutor:
 
     def __init__(self):
+
         self.controller = InputController()
+
+        self.actions = {
+            "PAUSE": self.controller.pause,
+            "STOP": self.controller.stop,
+            "CONFIRM": self.controller.confirm,
+            "NEXT": self.controller.next,
+        }
 
     def execute(self, action):
 
-        if action == "PAUSE":
-            self.pause()
+        action_function = self.actions.get(action)
 
-        elif action == "STOP":
-            self.stop()
-
-        elif action == "CONFIRM":
-            self.confirm()
-
-        elif action == "NEXT":
-            self.next()
-
-        else:
+        if action_function is None:
             print(f"No action mapped for: {action}")
+            return
 
-    def pause(self):
-        self.controller.pause()
-
-    def stop(self):
-        self.controller.stop()
-
-    def confirm(self):
-        self.controller.confirm()
-
-    def next(self):
-        self.controller.next()
+        action_function()
